@@ -28,3 +28,7 @@ Style/ZeroLengthPredicate:
 # the ".freeze" attribute for the constants is not nice
 Style/MutableConstant:
   Enabled: false
+
+Metrics/AbcSize:
+  Max: 40
+

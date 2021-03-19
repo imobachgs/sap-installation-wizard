@@ -72,40 +72,31 @@ module Y2Sap
         @arch     =  Yast::Arch.architecture
         @mount_point = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
-          "/mnt"
-        )
+          "/mnt")
         @media_dir = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.MEDIADIR"),
-          "/data/SAP_CDs"
-        )
+          "/data/SAP_CDs")
         @inst_dir_base = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.INSTDIR"),
-          "/data/SAP_INST"
-        )
+          "/data/SAP_INST")
         @product_definitions = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.MEDIAS_XML"),
-          "/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml"
-        )
+          "/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml")
         @partitioning_dir_base = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.PART_XML_PATH"),
-          "/usr/share/YaST2/data/y2sap"
-        )
+          "/usr/share/YaST2/data/y2sap")
         @ay_dir_base = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.PRODUCT_XML_PATH"),
-          "/usr/share/YaST2/data/y2sap"
-        )
+          "/usr/share/YaST2/data/y2sap")
         @sapinst_path = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SAPINST_PATH"),
-          "/usr/share/YaST2/data/y2sap/sap_inst.sh"
-        )
+          "/usr/share/YaST2/data/y2sap/sap_inst.sh")
         @inst_mode = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_AUTO_INSTALL"),
-          "no"
-        ) == "yes" ? "auto" : "manual"
+          "no") == "yes" ? "auto" : "manual"
         @sap_cds_url = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_CDS_URL"),
-          ""
-        )
+          "")
         @sap_media_todo = {}
       end
     end
