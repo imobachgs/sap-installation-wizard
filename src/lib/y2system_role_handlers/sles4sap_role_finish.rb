@@ -39,10 +39,10 @@ module Y2SystemRoleHandlers
       return true if !@firewalld.installed?
       log.info("Sles4sapRoleFinish firewall installed")
       if ::Installation::Services.enabled.include?("xrdp")
-         log.info("Sles4sapRoleFinish xrd enabled")
-         external = @firewalld.find_zone(@firewalld.default_zone)
-         external.add_service("ms-wbt")
-         @firewalld.write
+        log.info("Sles4sapRoleFinish xrd enabled")
+        external = @firewalld.find_zone(@firewalld.default_zone)
+        external.add_service("ms-wbt")
+        @firewalld.write
       end
       true
     end

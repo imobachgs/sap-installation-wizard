@@ -25,7 +25,6 @@ require "y2sap/partitioning/product_partitioning"
 Yast.import "UI"
 
 module Y2Sap
-
   # Install the selected products.
   module DoInstall
     include Yast
@@ -36,9 +35,7 @@ module Y2Sap
     def do_install
       do_collect
       ret = create_partitions(@partitioning_list, @product_list)
-      if( ret == :abort )
-        return :abort
-      end
+      return :abort if (ret == :abort)
       start_install_process
       return :next
     end
@@ -48,9 +45,9 @@ module Y2Sap
       @script_list       = []
       @partitioning_list = []
       @product_list      = []
-      @products_to_install.each do |instDir|
+      @products_to_install.each do |inst_dir|
         product_data = Convert.convert(
-          SCR.Read(path(".target.ycp"), instDir + "/product.data"),
+          SCR.Read(path(".target.ycp"), inst_dir + "/product.data"),
           :from => "any",
           :to   => "map <string, any>"
         )
@@ -60,7 +57,7 @@ module Y2Sap
           Ops.get_string(product_data, "product_id", ""),
           Ops.get_string(product_data, "db", ""),
           Ops.get_string(product_data, "type", ""),
-          Ops.get_string(product_data, "inst_dir", ""),
+          Ops.get_string(product_data, "inst_dir", "")
         )
         log.info("product_data: #{product_data}")
         # Add script
@@ -71,7 +68,7 @@ module Y2Sap
 
         # Add product partitioning
         ret = Ops.get_string(product_data, "partitioning", "")
-        if ret == nil
+	if ret.nil?
           # Default is base_partitioning
           ret = "base_partitioning"
         end
@@ -86,7 +83,7 @@ module Y2Sap
     def start_install_process
       require "open3"
       @script_list.each do |intall_script|
-	run_script(intall_script)
+        run_script(intall_script)
       end
     end
 
@@ -100,10 +97,7 @@ module Y2Sap
       Wizard.SetContents(
         _("SAP Product Installation"),
         LogView(Id("LOG"), "", 30, 400),
-        "Help",
-        true,
-        true
-      )
+        "Help", true, true)
       Open3.popen2e(script) do |i, o, t|
         i.close
         n = 0
@@ -130,6 +124,5 @@ module Y2Sap
         )
       end
     end
-
   end
 end

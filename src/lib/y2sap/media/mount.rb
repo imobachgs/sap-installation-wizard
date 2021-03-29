@@ -18,6 +18,7 @@
 #
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
+require "open3"
 
 module Y2Sap
   module MediaMount
@@ -78,7 +79,7 @@ module Y2Sap
         command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @media_dir + " " + mopts
       end
       out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
-      return Ops.get_string(out, "stderr", "") == ""
+      return out.fetch("stderr", "") == ""
     end
 
     def umount_sap_cds
@@ -92,45 +93,41 @@ module Y2Sap
       parsedURL = URL.Parse("device://" + location)
       log.info("parsed URL: #{parsedURL}")
 
-      Ops.set(
-        parsedURL,
-        "host",
-        "/dev/" + Ops.get_string(parsedURL, "host", "/cdrom")
-      )
+      Ops.set( parsedURL, "host", "/dev/" + parsedURL.fetch("host", "/cdrom"))
 
       if !Convert.to_boolean(
           SCR.Execute(
             path(".target.mount"),
-            [Ops.get_string(parsedURL, "host", "/dev/cdrom"), @mount_point],
+	    [parsedURL.fetch("host", "/dev/cdrom"), @mount_point],
             "-o shortname=mixed"
           )
         ) &&
           !Convert.to_boolean(
             SCR.Execute(
               path(".local.mount"),
-              [Ops.get_string(parsedURL, "host", "/dev/cdrom"), @mount_point]
+	      [parsedURL.fetch("host", "/dev/cdrom"), @mount_point]
             )
           )
         return "ERROR:Can not mount required device."
       end
       @need_umount = true
-      @source_dir  = @mount_point +  "/" + Ops.get_string(parsedURL, "path", "")
+      @source_dir  = @mount_point +  "/" + parsedURL.fetch("path", "")
       log.info("MountSource parsedURL #{parsedURL}")
     end 
 
     def mount_nfs(location)
       parsedURL = URL.Parse("nfs://" + location)
-      mpath     = Ops.get_string(parsedURL, "path", "")
+      mpath     = parsedURL.fetch("path", "")
 
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "mount -o nolock " + Ops.get_string(parsedURL, "host", "") + ":" + mpath + " " + @mount_point
+	  "mount -o nolock " + parsedURL.fetch("host", "") + ":" + mpath + " " + @mount_point
         )
       )
       log.info("MountSource parsedURL #{parsedURL}")
-      if Ops.get_string(out, "stderr", "") != ""
-        return "ERROR:" + Ops.get_string(out, "stderr", "")
+      if out.fetch("stderr", "") != ""
+        return "ERROR:" + out.fetch("stderr", "")
       end
       @source_dir = @mount_point
       return ""
@@ -145,28 +142,26 @@ module Y2Sap
 	       	"@" + location[at+1..-1]
       end
       parsedURL = URL.Parse("smb://" + location)
-      mpath = Ops.get_string(parsedURL, "path", "")
+      mpath = parsedURL.fetch("path", "")
       mopts = "-o ro"
-      if parsedURL.has_key("workgroup") &&
-        Ops.get_string(parsedURL, "workgroup", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
-      elsif parsedURL.has_key("user") &&
-        Ops.get_string(parsedURL, "user", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
+      if parsedURL.has_key("workgroup") && parsedURL.fetch("workgroup", "") != ""
+	mopts = mopts + ",user=" + parsedURL.fetch("workgroup", "") + "/" + parsedURL.fetch("user", "") + ",password=" + parsedURL.fetch("pass", "")
+      elsif parsedURL.has_key("user") && parsedURL.fetch("user", "") != ""
+	mopts = mopts + ",user=" + parsedURL.fetch("user", "") + ",password=" + parsedURL.fetch("pass", "")
       else
         mopts = mopts + ",guest"
       end
 
-      log.info( "smbMount: /sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mount_point + " " + mopts)
+      log.info( "smbMount: /sbin/mount.cifs //" + parsedURL.fetch("host", "") + mpath + " " + @mount_point + " " + mopts)
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mount_point + " " + mopts
+	  "/sbin/mount.cifs //" + parsedURL.fetch("host", "") + mpath + " " + @mount_point + " " + mopts
         )
       )
       log.info("MountSource parsedURL #{parsedURL}")
-      if Ops.get_string(out, "stderr", "") != ""
-        return "ERROR:" + Ops.get_string(out, "stderr", "")
+      if out.fetch("stderr", "") != ""
+        return "ERROR:" + out.fetch("stderr", "")
       end
       @source_dir = @mount_point
       return ""
